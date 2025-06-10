@@ -5,7 +5,7 @@
 #include "IndexTypes.hpp"
 #include "Parser.hpp"
 #include <vector>
-#include <mutex>
+#include "FreertosMutex.hpp"
 
 namespace IndexLib {
 
@@ -46,7 +46,7 @@ private:
     void evictIfNeeded();
 
     std::vector<CacheEntry> _entries;
-    std::mutex              _mtx; //!< mutex std, тк atomics нет
+    FreertosMutex           _mtx; //!< mutex FreeRTOS
 };
 
 } // namespace IndexLib

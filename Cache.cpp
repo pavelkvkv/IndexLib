@@ -25,7 +25,7 @@ void Cache::taskLoop() {
     while (true) {
         vTaskDelay(pdMS_TO_TICKS(1000));
         uint32_t now = tickMs();
-        std::lock_guard<std::mutex> lk(_mtx);
+        LockGuard lk(_mtx);
         for (auto it = _entries.begin(); it != _entries.end();) {
             if ((now - it->lastUseMs) > kCacheLifeMs) {
                 if (it->dirty) {
@@ -80,7 +80,7 @@ void Cache::evictIfNeeded() {
 }
 
 int Cache::acquire(const std::string &dir, Json *&outJson) {
-    std::lock_guard<std::mutex> lk(_mtx);
+    LockGuard lk(_mtx);
     CacheEntry *e = find(dir);
     if (!e) {
         // загрузка
@@ -99,7 +99,7 @@ int Cache::acquire(const std::string &dir, Json *&outJson) {
 }
 
 void Cache::setDirty(Json *json) {
-    std::lock_guard<std::mutex> lk(_mtx);
+    LockGuard lk(_mtx);
     for (auto &e : _entries) {
         if (&e.json == json) {
             e.dirty = true;
@@ -109,7 +109,7 @@ void Cache::setDirty(Json *json) {
 }
 
 void Cache::drop(const std::string &dir) {
-    std::lock_guard<std::mutex> lk(_mtx);
+    LockGuard lk(_mtx);
     for (auto it=_entries.begin(); it!=_entries.end(); ++it) {
         if (it->dir == dir) {
             if (it->dirty) saveFromCache(*it);
@@ -120,7 +120,7 @@ void Cache::drop(const std::string &dir) {
 }
 
 void Cache::dropAll() {
-    std::lock_guard<std::mutex> lk(_mtx);
+    LockGuard lk(_mtx);
     for (auto &e : _entries) {
         if (e.dirty) saveFromCache(e);
     }
@@ -128,7 +128,7 @@ void Cache::dropAll() {
 }
 
 void Cache::flushAll() {
-    std::lock_guard<std::mutex> lk(_mtx);
+    LockGuard lk(_mtx);
     for (auto &e : _entries) {
         if (e.dirty) saveFromCache(e);
     }
