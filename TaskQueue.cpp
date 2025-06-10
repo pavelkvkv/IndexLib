@@ -18,11 +18,10 @@ TaskQueue::TaskQueue() {
 }
 
 void TaskQueue::taskFunc(void *arg) {
-    static_cast<TaskQueue*>(arg)->process(*reinterpret_cast<Task*>(nullptr));
+    static_cast<TaskQueue*>(arg)->process();
 }
 
-void TaskQueue::process(Task &dummy) {
-    (void) dummy; // unused
+void TaskQueue::process() {
     while (true) {
         Task *ptask = nullptr;
         if (xQueueReceive(_q, &ptask, portMAX_DELAY) == pdTRUE && ptask) {

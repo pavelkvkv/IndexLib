@@ -30,7 +30,7 @@ public:
 private:
     TaskQueue();
     static void taskFunc(void *arg);
-    void process(Task &t);
+    void process();
 
     QueueHandle_t _q;
 };
