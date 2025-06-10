@@ -51,20 +51,46 @@ namespace IndexLib
 		for (auto &f : files)
 		{
 			std::string full = dir + "/" + f;
-			uint32_t sz, dur;
-			uint8_t type;
-			if (extractFileMeta(full, sz, dur, type) == 0)
-			{
-				Json rec = {
-					{"idx", (*root).size()},
-					{"sz", sz},
-					{"t", type},
-					{"arc", false},
-					{"del", false},
-					{"fn", f},
-				};
-				rec["aud"] = {
-					{"dur", dur}, {"ch", 0}, {"yy", 0}, {"MM", 0}, {"dd", 0}, {"hh", 0}, {"mm", 0}, {"ss", 0}, {"cdc", ""}, {"audr", true}, {"radr", false}, {"opo", false}, {"opopl", false}};
+                        uint32_t sz, dur;
+                        uint8_t type;
+                        std::string codec;
+                        if (extractFileMeta(full, sz, dur, type, codec) == 0)
+                        {
+                                uint8_t ch, MM, dd, hh, mm, ss; uint16_t yy;
+                                parseAudFromFilename(f, ch, yy, MM, dd, hh, mm, ss);
+                                bool arcFlag = false;
+                                auto posRec = full.find("/rec/");
+                                auto posArc = full.find("/arc/");
+                                if (posArc != std::string::npos)
+                                        arcFlag = true;
+                                else if (posRec != std::string::npos)
+                                {
+                                        std::string other = full;
+                                        other.replace(posRec, 5, "/arc/");
+                                        if (fs.fileExists(other.c_str())) arcFlag = true;
+                                }
+                                Json rec = {
+                                        {"idx", (*root).size()},
+                                        {"sz", sz},
+                                        {"t", type},
+                                        {"arc", arcFlag},
+                                        {"del", false},
+                                        {"fn", f},
+                                };
+                                rec["aud"] = {
+                                        {"dur", dur},
+                                        {"ch", ch},
+                                        {"yy", yy},
+                                        {"MM", MM},
+                                        {"dd", dd},
+                                        {"hh", hh},
+                                        {"mm", mm},
+                                        {"ss", ss},
+                                        {"cdc", codec},
+                                        {"audr", true},
+                                        {"radr", false},
+                                        {"opo", false},
+                                        {"opopl", false}};
 				(*root).push_back(rec);
 				Cache::instance().setDirty(root);
 				// обновить размеры каталога и выше
@@ -99,18 +125,41 @@ namespace IndexLib
 					deltaSz -= oldSz;
 					deltaDur -= oldDur;
 				}
-				else
-				{
-					// освежаем метаданные
-					uint32_t sz, dur;
-					uint8_t type;
-					extractFileMeta(filePath, sz, dur, type);
-					rec["sz"]		  = sz;
-					rec["t"]		  = type;
-					rec["aud"]["dur"] = dur;
-					deltaSz += (int32_t)sz - (int32_t)oldSz;
-					deltaDur += (int32_t)dur - (int32_t)oldDur;
-				}
+                                else
+                                {
+                                        // освежаем метаданные
+                                        std::string codec;
+                                        uint32_t sz, dur;
+                                        uint8_t type;
+                                        extractFileMeta(filePath, sz, dur, type, codec);
+                                        rec["sz"]          = sz;
+                                        rec["t"]           = type;
+                                        rec["aud"]["dur"] = dur;
+                                        rec["aud"]["cdc"] = codec;
+                                        uint8_t ch, MM, dd, hh, mm, ss; uint16_t yy;
+                                        parseAudFromFilename(fn, ch, yy, MM, dd, hh, mm, ss);
+                                        rec["aud"]["ch"] = ch;
+                                        rec["aud"]["yy"] = yy;
+                                        rec["aud"]["MM"] = MM;
+                                        rec["aud"]["dd"] = dd;
+                                        rec["aud"]["hh"] = hh;
+                                        rec["aud"]["mm"] = mm;
+                                        rec["aud"]["ss"] = ss;
+                                        bool arcFlag = false;
+                                        auto posRec  = filePath.find("/rec/");
+                                        auto posArc  = filePath.find("/arc/");
+                                        if (posArc != std::string::npos)
+                                                arcFlag = true;
+                                        else if (posRec != std::string::npos)
+                                        {
+                                                std::string other = filePath;
+                                                other.replace(posRec, 5, "/arc/");
+                                                if (Fapi::instance().fileExists(other.c_str())) arcFlag = true;
+                                        }
+                                        rec["arc"]          = arcFlag;
+                                        deltaSz += (int32_t)sz - (int32_t)oldSz;
+                                        deltaDur += (int32_t)dur - (int32_t)oldDur;
+                                }
 				Cache::instance().setDirty(j);
 				break;
 			}
