@@ -11,45 +11,43 @@
 #define JSON_NOEXCEPTION 1
 #endif
 
-namespace IndexLib {
+namespace IndexLib
+{
 
-// Константы
-constexpr uint32_t kCacheSizeMax   = 8;       //!< Максимум объектов в кеше
-constexpr uint32_t kCacheLifeMs    = 10000;   //!< 10 секунд бездействия
-constexpr uint32_t kTaskQueueLen   = 16;      //!< Глубина очереди задач
-constexpr uint32_t kTaskStack      = 4096;    //!< Стек тасков FreeRTOS
-constexpr uint32_t kTaskPrio       = 3;       //!< Приоритет тасков
+	// Константы
+	constexpr uint32_t kCacheSizeMax = 8;	  //!< Максимум объектов в кеше
+	constexpr uint32_t kCacheLifeMs	 = 10000; //!< 10 секунд бездействия
+	constexpr uint32_t kTaskQueueLen = 16;	  //!< Глубина очереди задач
+	constexpr uint32_t kTaskStack	 = 4096;  //!< Стек тасков FreeRTOS
+	constexpr uint32_t kTaskPrio	 = 3;	  //!< Приоритет тасков
 
-//------------------------------------------------------------------------------
-// Структуры индекса
-//------------------------------------------------------------------------------
-struct AudioInfo {
-    uint8_t ch{};
-    uint8_t yy{};  //!< год (от 2000)
-    uint8_t MM{};
-    uint8_t dd{};
-    uint8_t hh{};
-    uint8_t mm{};
-    uint8_t ss{};
-    char    cdc[8]{}; //!< codec (строка макс 7 + 0)
-    uint32_t dur{};   //!< длительность (сек)
-    bool audr{};
-    bool radr{};
-    bool opo{};
-    bool opopl{};
-};
+// Формат индексного файла: имя index, содержит MessagePack с таким содержимым (пример одной записи):
+// {
+//   "idx": 12,           // порядковый номер в индексном файле (index)
+//   "sz": 123456,        // размер файла (size)
+//   "t": 1,              // тип файла (type)
+//   "arc": false,        /* archived — файл из rec скопирован в arc, означает, что файл есть и в rec/file.wav, и в arc/file.wav. Ставится/удаляется в обоих папках. */
+//   "del": false,        // deleted — запись не связана с файлом
+//   "fn": "record.wav",  // filename — только имя файла без пути
 
-struct IndexRecord {
-    uint32_t idx{};
-    uint32_t sz{};
-    uint8_t  t{};
-    bool     arc{};
-    bool     del{};
-    char     fn[64]{};   //!< filename
-    AudioInfo aud;
-};
+//   "aud": {             // audio — вложенная структура аудио-информации
+//     "ch": 2,           // channel — номер канала
+//     "yy": 25,          // год (относительно 2000)
+//     "MM": 6,           // месяц
+//     "dd": 9,           // день
+//     "hh": 14,          // часы
+//     "mm": 30,          // минуты
+//     "ss": 45,          // секунды
+//     "cdc": "",           // codec
+//     "dur": 1200,       // duration — длительность в секундах
+//     "audr": true,        // audiorecord — флаг аудиозаписи
+//     "radr": false,       // radiorecord — флаг радиозаписи
+//     "opo": true,        // оповещение
+//     "opopl": false       // opo_playlist
+//   }
+// }
 
-using Json = nlohmann::json;
+	using Json = nlohmann::json;
 
 } // namespace IndexLib
 

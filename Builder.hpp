@@ -5,19 +5,21 @@
 #include "IndexTypes.hpp"
 #include <string>
 
-namespace IndexLib {
+namespace IndexLib
+{
 
-class Builder {
-public:
-    //! Рекурсивное сканирование папки и создание/обновление индекса.
-    static int scanDirectory(const std::string &dir);
+	class Builder
+	{
+	public:
+		//! Рекурсивное сканирование папки и создание/обновление индекса.
+		static int scanDirectory(const std::string &dir);
 
-    //! Обновить запись о файле (удалить/добавить/изменить).
-    static int updateFile(const std::string &filePath, bool remove = false);
+		//! Обновить запись о файле (удалить/добавить/изменить).
+		static int updateFile(const std::string &filePath, bool remove = false);
 
-    //! Установить или снять флаг ARC.
-    static int setArc(const std::string &filePath, bool on);
-};
+		//! Установить или снять флаг ARC.
+		static int setArc(const std::string &filePath, bool on);
+	};
 
 } // namespace IndexLib
 

@@ -6,25 +6,27 @@
 #include "IndexTypes.hpp"
 #include "TaskQueue.hpp"
 
-namespace IndexLib {
+namespace IndexLib
+{
 
-class API {
-public:
-    //! Получить размер каталога или файла из индекса.
-    static int getSize(const std::string &path, uint32_t &size);
+	class API
+	{
+	public:
+		//! Получить размер каталога или файла из индекса.
+		static int getSize(const std::string &path, uint32_t &size);
 
-    //! Получить суммарную длительность.
-    static int getDuration(const std::string &path, uint32_t &dur);
+		//! Получить суммарную длительность.
+		static int getDuration(const std::string &path, uint32_t &dur);
 
-    //! Получить весь json-запись о файле.
-    static int getRecord(const std::string &filePath, Json &record);
+		//! Получить весь json-запись о файле.
+		static int getRecord(const std::string &filePath, Json &record);
 
-    //! Добавить задачу (не ждать).
-    static int scheduleTask(TaskType type, const std::string &path);
+		//! Добавить задачу (не ждать).
+		static int scheduleTask(TaskType type, const std::string &path);
 
-    //! Добавить задачу и ждать (front=true).
-    static int scheduleTaskSync(TaskType type, const std::string &path);
-};
+		//! Добавить задачу и ждать (front=true).
+		static int scheduleTaskSync(TaskType type, const std::string &path);
+	};
 
 } // namespace IndexLib
 

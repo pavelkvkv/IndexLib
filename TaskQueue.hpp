@@ -7,33 +7,37 @@
 #include "queue.h"
 #include "IndexTypes.hpp"
 
-namespace IndexLib {
+namespace IndexLib
+{
 
-enum class TaskType : uint8_t {
-    UPDATE_FILE = 0,
-    RESCAN_DIR  = 1,
-    ARC_FLAG    = 2,
-};
+	enum class TaskType : uint8_t
+	{
+		UPDATE_FILE = 0,
+		RESCAN_DIR	= 1,
+		ARC_FLAG	= 2,
+	};
 
-struct Task {
-    TaskType    type;
-    std::string path;
-};
+	struct Task
+	{
+		TaskType type;
+		std::string path;
+	};
 
-class TaskQueue {
-public:
-    static TaskQueue &instance();
+	class TaskQueue
+	{
+	public:
+		static TaskQueue &instance();
 
-    //! Добавить задачу (не блокирует).
-    int enqueue(TaskType type, const std::string &path, bool front = false);
+		//! Добавить задачу (не блокирует).
+		int enqueue(TaskType type, const std::string &path, bool front = false);
 
-private:
-    TaskQueue();
-    static void taskFunc(void *arg);
-    void process();
+	private:
+		TaskQueue();
+		static void taskFunc(void *arg);
+		void process();
 
-    QueueHandle_t _q;
-};
+		QueueHandle_t _q;
+	};
 
 } // namespace IndexLib
 
